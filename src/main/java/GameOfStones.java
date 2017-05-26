@@ -12,7 +12,7 @@ public class GameOfStones {
 	}
 
 	protected void play(int setOfStones, Player currentPlayer) {
-		Move bestMove = evaluateBestMoveForThis(setOfStones);
+		Move bestMove = evaluateBestMoveUsingGreedyAlgorithm(setOfStones);
 		setOfStones = reduce(setOfStones, bestMove);
 		if (stillPossibleToPlay(setOfStones)) {
 			play(setOfStones, otherPlayer(currentPlayer));
@@ -25,54 +25,31 @@ public class GameOfStones {
 		if (bestMove == null) {
 			setOfStones = 0;
 		} else {
-			setOfStones -= bestMove.value;
+			setOfStones -= bestMove.getValue();
 		}
 		return setOfStones;
 	}
 
-	protected Move evaluateBestMoveForThis(int setOfStones) {
-		List<BestMoves> bestMovesPossible = new ArrayList<>();
+	protected Move evaluateBestMoveUsingGreedyAlgorithm(int setOfStones) {
+		List<BestMoveOutcome> bestMoveOutcomePossible = new ArrayList<>();
 		for (Move move : Move.values()) {
 			if (possible(setOfStones, move)) {
-				int reducedSetOfStones = setOfStones - move.value;
+				int reducedSetOfStones = setOfStones - move.getValue();
 				if (reducedSetOfStones == 0) {
 					return move;
 				} else {
-					bestMovesPossible.add(new BestMoves(reducedSetOfStones, move));
+					bestMoveOutcomePossible.add(new BestMoveOutcome(reducedSetOfStones, move));
 				}
 			}
 		}
-		if (bestMovesPossible.isEmpty()) {
+		if (bestMoveOutcomePossible.isEmpty()) {
 			return null;
 		}
-		return optimumMove(bestMovesPossible);
+		return optimumMove(bestMoveOutcomePossible);
 	}
 
-	private Move optimumMove(List<BestMoves> bestMovesPossible) {
-		return Collections.min(bestMovesPossible).getMove();
-	}
-
-	public class BestMoves implements Comparable<BestMoves> {
-		private int  reducedValue;
-		private Move move;
-
-		public BestMoves(int reducedValue, Move move) {
-			this.reducedValue = reducedValue;
-			this.move = move;
-		}
-
-		public int getReducedValue() {
-			return reducedValue;
-		}
-
-		public Move getMove() {
-			return move;
-		}
-
-		@Override
-		public int compareTo(BestMoves o) {
-			return this.reducedValue - o.reducedValue;
-		}
+	protected Move optimumMove(List<BestMoveOutcome> bestMoveOutcomePossible) {
+		return Collections.min(bestMoveOutcomePossible).getMove();
 	}
 
 	private boolean stillPossibleToPlay(int setOfStones) {
@@ -82,7 +59,7 @@ public class GameOfStones {
 	protected boolean possible(int setOfStones, Move move) {
 		//return Stream.of(Move.values()).anyMatch(x -> (x >= 2));
 		//	return IntStream.of(setOfStones).anyMatch(x -> Arrays.stream().anyMatch(boolean::isGreaterThanEqualTo));
-		return setOfStones >= move.value;
+		return setOfStones >= move.getValue();
 	}
 
 	protected Player otherPlayer(Player currentPlayer) {
@@ -118,12 +95,4 @@ public class GameOfStones {
 		}
 	}
 
-	public enum Move {
-		TWO(2), THREE(3), FIVE(5);
-		private final int value;
-
-		private Move(int value) {
-			this.value = value;
-		}
-	}
 }

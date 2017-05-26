@@ -1,6 +1,9 @@
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.*;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.junit.Test;
 
 public class GameOfStonesTest {
@@ -9,12 +12,12 @@ public class GameOfStonesTest {
 
 	@Test
 	public void testPossibleMoveForFailure() throws Exception {
-		assertFalse(underTest.possible(1, GameOfStones.Move.TWO));
+		assertFalse(underTest.possible(1, Move.TWO));
 	}
 
 	@Test
 	public void testPossibleMoveForSuccess() throws Exception {
-		assertTrue(underTest.possible(2, GameOfStones.Move.TWO));
+		assertTrue(underTest.possible(2, Move.TWO));
 	}
 
 	@Test
@@ -29,14 +32,29 @@ public class GameOfStonesTest {
 
 	@Test
 	public void testEvaluateBestMoveFor10Stones() throws Exception {
-		GameOfStones.Move move = underTest.evaluateBestMoveForThis(10);
-		assertThat("", move, is(GameOfStones.Move.FIVE));
+		Move move = underTest.evaluateBestMoveUsingGreedyAlgorithm(10);
+		assertThat("", move, is(Move.FIVE));
 	}
 
 	@Test
 	public void testEvaluateBestMoveForSetOfStonesLessThanAllPossibleValues() throws Exception {
-		GameOfStones.Move move = underTest.evaluateBestMoveForThis(1);
+		Move move = underTest.evaluateBestMoveUsingGreedyAlgorithm(1);
 		assertNull("", move);
+	}
+
+	@Test
+	public void testOptimumMove() {
+
+		int setOfStones = 10;
+		BestMoveOutcome moveOutcome5 = new BestMoveOutcome(setOfStones, Move.FIVE);
+		BestMoveOutcome moveOutcome2 = new BestMoveOutcome(setOfStones, Move.TWO);
+		BestMoveOutcome moveOutcome3 = new BestMoveOutcome(setOfStones, Move.THREE);
+		List<BestMoveOutcome> bestMovesList = new ArrayList<>();
+		bestMovesList.add(moveOutcome5);
+		bestMovesList.add(moveOutcome2);
+		bestMovesList.add(moveOutcome3);
+		Move result = underTest.optimumMove(bestMovesList);
+		assertThat("", result, is(Move.FIVE));
 	}
 
 	@Test
